@@ -8,12 +8,12 @@ def prepare(book):
     character_id_list = book_data['voice_id']
     for scene in book_data['script']:
         if scene['role']!='나레이션':
-            with open(f"character/{character_id_list[scene['role']]}.wav", "rb") as f:
+            with open(f"character/{character_id_list[scene['role']]}.mp3", "rb") as f:
                 raw = f.read()
             files = {'wav': raw}
             data = {'text': scene['text']}
             res = requests.post(TTS_ENDPOINT, files=files, data=data)
-            with open(f'books/{book}/voices/{scene["id"]}.wav', 'wb') as file:
+            with open(f'books/{book}/voices/{scene["id"]}.mp3', 'wb') as file:
                 file.write(res.content)
     data = {
         "status":"success"

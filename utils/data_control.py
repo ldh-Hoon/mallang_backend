@@ -5,6 +5,9 @@ import librosa
 import soundfile as sf
 import io
 
+def encode_audio(file):
+    return base64.b64decode(open(file).read()).encode('utf-8')
+    
 def down_sample(path, y, sr, resample_sr):
     resample = librosa.resample(y, orig_sr=sr, target_sr=resample_sr)
     sf.write(f'{path}.wav', resample, resample_sr, format='WAV', endian='LITTLE', subtype='PCM_16')

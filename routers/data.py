@@ -7,6 +7,7 @@ from utils.convert import *
 from utils.data_control import *
 import os
 
+
 data_api = APIRouter(prefix='/data')
 
 class File_request_payload(BaseModel):
@@ -52,9 +53,9 @@ async def return_file(payload : File_request_payload):
     
     elif payload.type == "audio" and payload.book != None and payload.file != None:
         
-        filepath = os.path.join("./books", payload.book, "voices", f"{payload.file}.wav")
+        filepath = os.path.join("./books", payload.book, "voices", f"{payload.file}.mp3")
         if not os.path.isfile(filepath):
             return "fail"
         
-        return FileResponse(filepath)
+        return JSONResponse({"data":encode_audio(filepath)})
     return 'fail'
