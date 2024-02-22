@@ -42,8 +42,7 @@ async def TTS(data : TTS_payload):
         file = standard_wav
         if os.path.isfile(f"parent/{data.email}.wav"):
             file = f"parent/{data.email}.wav"
-            
-
+        
         raw = open(file, 'rb')
         files = {'wav': raw}
         data = {'text': data.text}
