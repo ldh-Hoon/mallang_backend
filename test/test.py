@@ -60,7 +60,7 @@ print(res.json())
 res = requests.get(f'http://{back}/data/booklist')
 print(res.json())
 
-res = requests.post(f'http://{back}/data/get/file', json = {"email":"a1", "type":"audio", "book":"토끼와 거북이", "file":"1"}).json()
+res = requests.post(f'http://{back}/data/get/file', json = {"email":"a1", "type":"audio", "book":"토끼와 거북이", "file":"1"})
 data = res
 print(data)
 
