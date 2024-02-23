@@ -21,17 +21,6 @@
 			"history": null
 		}
 	},
-	"123": {
-		"pw": "asd",
-		"info": {
-			"name": "김차돌123",
-			"phoneNumber": "01012394120",
-			"age": "5",
-			"gender": "men",
-			"interests": "a, r",
-			"history": null
-		}
-	},
 	"9@gmail.com": {
 		"pw": "9",
 		"info": {
@@ -40,17 +29,6 @@
 			"age": "9",
 			"gender": "여성",
 			"interests": "가을",
-			"history": null
-		}
-	},
-	"a1": {
-		"pw": "asd",
-		"info": {
-			"name": "aaa1",
-			"phoneNumber": "01012394120",
-			"age": "5",
-			"gender": "men",
-			"interests": "a, r",
 			"history": null
 		}
 	},
