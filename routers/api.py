@@ -75,8 +75,8 @@ async def prepare(data : TTS_parent_payload, background_tasks: BackgroundTasks):
         return 'fail'
 
     file = f"parent/a1.wav"
-    if os.path.isfile(f"parent/{data.email}.wav"):
-        file = f"parent/{data.email}.wav"
+    if os.path.isfile(f"parent/{data.email.split('@')[0]}.wav"):
+        file = f"parent/{data.email.split('@')[0]}.wav"
     book_data = book_json(data.book)
     
     background_tasks.add_task(tts_save, book_data, file)
@@ -89,7 +89,7 @@ async def prepare(data : TTS_parent_payload, background_tasks: BackgroundTasks):
 @api.post('/rvc/{email}/{book}/{role}')
 async def prepare(file : UploadFile, email, book, role):
     content = await file.read()
-    with open(f"temp_{email}.aac", 'wb') as file:
+    with open(f"temp_{email.split('@')[0]}.aac", 'wb') as file:
         file.write(content)
     convert_aac2wav(f"temp_{email}")
 
@@ -105,7 +105,6 @@ async def prepare(file : UploadFile, email, book, role):
     if not book in books:
         return "fail"
     characterId = book_json(book)['voice_id'][role]
-
 
     raw = open(f"temp_{email}.wav", 'wb') 
 
