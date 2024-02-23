@@ -21,7 +21,7 @@ async def upload_audio(file : UploadFile, email):
     content = await file.read()
     with open(f"parent/{email}.aac", 'wb') as file:
         file.write(content)
-    convert_aac2wav(email)
+    convert_aac2wav(f"parent/{email}")
     return "ok"
 
 @data_api.get('/{type}/{book}/{filename}')

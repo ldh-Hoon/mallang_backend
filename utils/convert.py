@@ -2,9 +2,9 @@ from pydub import AudioSegment
 from pydub.playback import play
 
 
-def convert_aac2wav(email):
-    sound = AudioSegment.from_file(f"parent/{email}.aac", "aac") 
-    sound.export(f"parent/{email}.wav", format='wav')
+def convert_aac2wav(filename):
+    sound = AudioSegment.from_file(f"{filename}.aac", "aac") 
+    sound.export(f"{filename}.wav", format='wav')
 
 #convert audio to datasegment
 

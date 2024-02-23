@@ -4,6 +4,7 @@ from pydantic import BaseModel
 from utils.data_control import *
 from fastapi.responses import Response, FileResponse, JSONResponse
 from utils.urls import *
+from utils.convert import *
 import glob
 
 standard_wav = "parent/a1.wav"
@@ -87,7 +88,11 @@ async def prepare(data : TTS_parent_payload, background_tasks: BackgroundTasks):
 
 @api.post('/rvc/{email}/{book}/{role}')
 async def prepare(file : UploadFile, email, book, role):
-    raw = await file.read()
+    content = await file.read()
+    with open(f"temp_{email}.aac", 'wb') as file:
+        file.write(content)
+    convert_aac2wav(email)
+
     json_data = get_json()
     age = json_data[email]['info']['age']
     gender = json_data[email]['info']['gender']
@@ -101,6 +106,8 @@ async def prepare(file : UploadFile, email, book, role):
         return "fail"
     characterId = book_json(book)['voice_id'][role]
 
+
+    raw = open(f"temp_{email}.mp3", 'wb')
     files = {'wav': raw}
     data = {'CharacterId': characterId,
             'age': age,
@@ -108,8 +115,8 @@ async def prepare(file : UploadFile, email, book, role):
     requests.post(f'{RVC_ENDPOINT}/upload', files=files, data=data)
 
     response = requests.get(f'{RVC_ENDPOINT}/download')
-    with open(f'temp.wav', 'wb') as file:
+    with open(f'rvc_temp.wav', 'wb') as file:
         file.write(response.content)
     
-    return FileResponse('temp.wav')
+    return JSONResponse({"data":encode_audio('rvc_temp.wav')})
 
