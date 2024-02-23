@@ -108,10 +108,7 @@ async def prepare(file : UploadFile, email, book, role):
     characterId = book_json(book)['voice_id'][role]
 
 
-    with open(f"temp_{clean_text(email)}.wav", 'wb') as file:
-        raw = file.read()
-
-    files = {'wav': raw}
+    files = {'wav': open(f"temp_{clean_text(email)}.wav", 'wb')}
     data = {'CharacterId': characterId,
             'age': age,
             'gender': gender}
