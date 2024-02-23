@@ -81,8 +81,6 @@ def login_check(email, password): # 로그인 검증
 def add_account(email, password, name): #  계정 추가
     data = get_json()
 
-    if email in data:
-        return False
     data[email]={
             "pw" : password,
             "info" : {
