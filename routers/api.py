@@ -91,7 +91,7 @@ async def prepare(file : UploadFile, email, book, role):
     content = await file.read()
     with open(f"temp_{email}.aac", 'wb') as file:
         file.write(content)
-    convert_aac2wav(email)
+    convert_aac2wav(f"temp_{email}")
 
     json_data = get_json()
     age = json_data[email]['info']['age']
