@@ -41,8 +41,8 @@ async def TTS(data : TTS_payload):
 
     if data.role == '나레이션':
         file = standard_wav
-        if os.path.isfile(f"parent/{data.email}.wav"):
-            file = f"parent/{data.email}.wav"
+        if os.path.isfile(f"parent/{clean_text(data.email)}.wav"):
+            file = f"parent/{clean_text(data.email)}.wav"
         
         raw = open(file, 'rb')
         files = {'wav': raw}
@@ -75,8 +75,8 @@ async def prepare(data : TTS_parent_payload, background_tasks: BackgroundTasks):
         return 'fail'
 
     file = f"parent/a1.wav"
-    if os.path.isfile(f"parent/{data.email.split('@')[0]}.wav"):
-        file = f"parent/{data.email.split('@')[0]}.wav"
+    if os.path.isfile(f"parent/{clean_text(data.email)}.wav"):
+        file = f"parent/{clean_text(data.email)}.wav"
     book_data = book_json(data.book)
     
     background_tasks.add_task(tts_save, book_data, file)
@@ -89,9 +89,9 @@ async def prepare(data : TTS_parent_payload, background_tasks: BackgroundTasks):
 @api.post('/rvc/{email}/{book}/{role}')
 async def prepare(file : UploadFile, email, book, role):
     content = await file.read()
-    with open(f"temp_{email.split('@')[0]}.aac", 'wb') as file:
+    with open(f"temp_{clean_text(email)}.aac", 'wb') as file:
         file.write(content)
-    convert_aac2wav(f"temp_{email}")
+    convert_aac2wav(f"temp_{clean_text(email)}")
 
     json_data = get_json()
     age = json_data[email]['info']['age']
@@ -106,7 +106,9 @@ async def prepare(file : UploadFile, email, book, role):
         return "fail"
     characterId = book_json(book)['voice_id'][role]
 
-    raw = open(f"temp_{email}.wav", 'wb') 
+
+    with open(f"temp_{clean_text(email)}.wav", 'wb') as file:
+        raw = file.read()
 
     files = {'wav': raw}
     data = {'CharacterId': characterId,

@@ -5,6 +5,9 @@ import librosa
 import soundfile as sf
 import io
 
+def clean_text(text):
+    return text.split('@')[0]
+
 def encode_audio(file):
     data = open(file, 'rb').read()
     return base64.b64encode(data).decode('utf-8')
