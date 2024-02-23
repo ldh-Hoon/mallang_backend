@@ -91,7 +91,6 @@ async def prepare(file : UploadFile, email, book, role):
     content = await file.read()
     with open(f"temp_{clean_text(email)}.aac", 'wb') as file:
         file.write(content)
-    song.export("my_song.aac", format="aac")
     convert_aac2wav(f"temp_{clean_text(email)}")
 
     json_data = get_json()
