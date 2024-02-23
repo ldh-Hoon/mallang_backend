@@ -95,11 +95,13 @@ async def prepare(file : UploadFile, email, book, role):
 
     json_data = get_json()
     age = json_data[email]['info']['age']
-    gender = json_data[email]['info']['gender']
+    gender = 0
     if age==None:
         age = 7
-    if gender==None:
+    if json_data[email]['info']['gender'] == '여성':
         gender = 0
+    if json_data[email]['info']['gender'] == '남성':
+        gender = 1
     
     books = os.listdir('./books')
     if not book in books:
