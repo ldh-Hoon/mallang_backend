@@ -13,6 +13,7 @@ api = APIRouter(prefix='/api')
 class TTS_payload(BaseModel):
     email: str
     text: str
+    book: str
     role: str
 
 class TTS_parent_payload(BaseModel):
@@ -38,7 +39,6 @@ async def TTS(data : TTS_payload):
     if not data.email in json_data:
         return "no email"
 
-
     if data.role == '나레이션':
         file = standard_wav
         if os.path.isfile(f"parent/{clean_text(data.email)}.wav"):
@@ -50,21 +50,18 @@ async def TTS(data : TTS_payload):
         res = requests.post(TTS_ENDPOINT, files=files, data = data)
         with open(f'temp.wav', 'wb') as file:
             file.write(res.content)
-        return FileResponse("temp.wav", media_type="audio/wav")
+        return JSONResponse({"data":encode_audio('temp.wav')})
     else:
-        file_list = glob.glob("character/*.mp3")
-        voice_list = [x.split("character\\")[1].split(".mp3")[0] for x in file_list]
-        if not data.role in voice_list:
-            raw = open(standard_wav, 'rb')
-        else:
-            raw = open(file_list[voice_list.index(data.role)], 'rb')
+        characterId = book_json(data.book)['voice_id'][data.role]
+
+        raw = open(f"character/{characterId}.mp3", 'rb')
         files = {'wav': raw}
         data = {'text': data.text}
         res = requests.post(TTS_ENDPOINT, files=files, data = data)
 
         with open(f'temp.wav', 'wb') as file:
             file.write(res.content)
-        return FileResponse("temp.wav", media_type="audio/wav")
+        return JSONResponse({"data":encode_audio('temp.wav')})
         
 
 @api.post('/tts/prepare')
