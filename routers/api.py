@@ -21,8 +21,7 @@ class TTS_parent_payload(BaseModel):
 
 
 def tts_save(book_data, file):
-    with open(file, 'rb') as f:
-        raw = f.read()
+    raw = open(file, 'rb') 
     for scene in book_data['script']:
         if scene['role']=='나레이션':
             files = {'wav': raw}
