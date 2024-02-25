@@ -1,10 +1,11 @@
-from fastapi import APIRouter
+from fastapi import APIRouter, background_tasks
 from typing import Optional
 from fastapi import FastAPI
 from pydantic import BaseModel
 from utils.data_control import *
 from fastapi.responses import JSONResponse, FileResponse
-
+import requests
+from utils.urls import *
 
 class Login_payload(BaseModel):
     email: str
@@ -28,11 +29,29 @@ class Data_add_payload(BaseModel):
     gender: str
     interests: str
 
+
+def tts_save(book_data, file):
+    with open(file, 'rb') as f:
+        raw = f.read()
+    for scene in book_data['script']:
+        if scene['role']=='나레이션':
+            files = {'wav': raw}
+            d = {'text': scene['text']}
+            res = requests.post(TTS_ENDPOINT, files=files, data=d)
+            with open(f'books/{book_data["title"]}/voices/{scene["id"]}.mp3', 'wb') as file:
+                file.write(res.content)
+
 account = APIRouter(prefix='/account')
 
 @account.post('/login')
 async def login(data: Login_payload):
     if login_check(data.email, data.password):
+        file = f"parent/a1.wav"
+        if os.path.isfile(f"parent/{clean_text(data.email)}.wav"):
+            file = f"parent/{clean_text(data.email)}.wav"
+        book_data = book_json("토끼와 거북이")
+        
+        background_tasks.add_task(tts_save, book_data, file)
         return "success"
     
     return "fail"

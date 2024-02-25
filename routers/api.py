@@ -5,7 +5,6 @@ from utils.data_control import *
 from fastapi.responses import Response, FileResponse, JSONResponse
 from utils.urls import *
 from utils.convert import *
-import glob
 
 standard_wav = "parent/a1.wav"
 api = APIRouter(prefix='/api')
