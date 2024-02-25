@@ -34,6 +34,7 @@ account = APIRouter(prefix='/account')
 async def login(data: Login_payload):
     if login_check(data.email, data.password):
         return "success"
+    
     return "fail"
 
 @account.post('/register')
