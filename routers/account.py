@@ -1,4 +1,4 @@
-from fastapi import APIRouter, background_tasks
+from fastapi import APIRouter, BackgroundTasks
 from typing import Optional
 from fastapi import FastAPI
 from pydantic import BaseModel
@@ -44,7 +44,7 @@ def tts_save(book_data, file):
 account = APIRouter(prefix='/account')
 
 @account.post('/login')
-async def login(data: Login_payload):
+async def login(data: Login_payload, background_tasks: BackgroundTasks):
     if login_check(data.email, data.password):
         file = f"parent/a1.wav"
         if os.path.isfile(f"parent/{clean_text(data.email)}.wav"):
