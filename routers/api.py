@@ -2,6 +2,8 @@ import os, requests
 from fastapi import APIRouter, UploadFile, BackgroundTasks
 from pydantic import BaseModel
 from utils.data_control import *
+from typing import Optional
+
 from fastapi.responses import Response, FileResponse, JSONResponse
 from utils.urls import *
 from utils.convert import *
@@ -14,18 +16,24 @@ class TTS_payload(BaseModel):
     text: str
     book: str
     role: str
+    sleepMode: Optional[int] = 0
 
 class TTS_parent_payload(BaseModel):
     email: str
     book: str
+    sleepMode: Optional[int] = 0
 
 
-def tts_save(book_data, file):
+def tts_save(book_data, file, mode):
     raw = open(file, 'rb') 
+
+    speed = 1.0    
+    if mode == 1:
+        speed = 0.8
     for scene in book_data['script']:
         if scene['role']=='나레이션':
             files = {'wav': raw}
-            d = {'text': scene['text']}
+            d = {'text': scene['text'], "speed": speed}
             res = requests.post(TTS_ENDPOINT, files=files, data=d)
             with open(f'books/{book_data["title"]}/voices/{scene["id"]}.mp3', 'wb') as file:
                 file.write(res.content)
@@ -41,10 +49,14 @@ async def TTS(data : TTS_payload):
         file = standard_wav
         if os.path.isfile(f"parent/{clean_text(data.email)}.wav"):
             file = f"parent/{clean_text(data.email)}.wav"
+
+        speed = 1.0    
+        if data.sleepMode == 1:
+            speed = 0.8
         
         raw = open(file, 'rb')
         files = {'wav': raw}
-        data = {'text': data.text}
+        data = {'text': data.text, "speed": speed}
         res = requests.post(TTS_ENDPOINT, files=files, data = data)
         with open(f'temp.wav', 'wb') as file:
             file.write(res.content)
@@ -74,7 +86,7 @@ async def prepare(data : TTS_parent_payload, background_tasks: BackgroundTasks):
         file = f"parent/{clean_text(data.email)}.wav"
     book_data = book_json(data.book)
     
-    background_tasks.add_task(tts_save, book_data, file)
+    background_tasks.add_task(tts_save, book_data, file, data.mode)
 
     data = {
         "status":"success"
