@@ -23,7 +23,6 @@ class TTS_parent_payload(BaseModel):
     book: str
     sleepMode: Optional[int] = 0
 
-
 def tts_save(book_data, file, mode):
     raw = open(file, 'rb') 
 
@@ -31,11 +30,19 @@ def tts_save(book_data, file, mode):
     if mode == 1:
         speed = 0.8
     for scene in book_data['script']:
-        if scene['role']=='나레이션':
+        if mode == 0:
+            if scene['role']=='나레이션':
+                files = {'wav': raw}
+                d = {'text': scene['text'], "speed": 1.0}
+                res = requests.post(TTS_ENDPOINT, files=files, data=d)
+                
+                with open(f'books/{book_data["title"]}/voices/{scene["id"]}.mp3', 'wb') as file:
+                    file.write(res.content)
+        else:
             files = {'wav': raw}
             d = {'text': scene['text'], "speed": speed}
             res = requests.post(TTS_ENDPOINT, files=files, data=d)
-            with open(f'books/{book_data["title"]}/voices/{scene["id"]}.mp3', 'wb') as file:
+            with open(f'books/{book_data["title"]}/voices/{scene["id"]}_slow.mp3', 'wb') as file:
                 file.write(res.content)
 
 @api.post('/tts')
