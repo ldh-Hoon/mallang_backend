@@ -86,7 +86,7 @@ async def prepare(data : TTS_parent_payload, background_tasks: BackgroundTasks):
         file = f"parent/{clean_text(data.email)}.wav"
     book_data = book_json(data.book)
     
-    background_tasks.add_task(tts_save, book_data, file, data.mode)
+    background_tasks.add_task(tts_save, book_data, file, data.sleepMode)
 
     data = {
         "status":"success"
