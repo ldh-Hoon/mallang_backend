@@ -31,14 +31,25 @@ class Data_add_payload(BaseModel):
 
 
 def tts_save(book_data, file):
-    with open(file, 'rb') as f:
-        raw = f.read()
+    raw = open(file, 'rb') 
+
+    speed = 0.8
+    files = {'wav': raw}
     for scene in book_data['script']:
         if scene['role']=='나레이션':
-            files = {'wav': raw}
-            d = {'text': scene['text']}
+            d = {'text': scene['text'], "speed": 1.0}
             res = requests.post(TTS_ENDPOINT, files=files, data=d)
             with open(f'books/{book_data["title"]}/voices/{scene["id"]}.mp3', 'wb') as file:
+                file.write(res.content)
+
+            d = {'text': scene['text'], "speed": speed}
+            res = requests.post(TTS_ENDPOINT, files=files, data=d)
+            with open(f'books/{book_data["title"]}/voices/{scene["id"]}_slow.mp3', 'wb') as file:
+                file.write(res.content)
+        else:
+            d = {'text': scene['text'], "speed": speed}
+            res = requests.post(TTS_ENDPOINT, files=files, data=d)
+            with open(f'books/{book_data["title"]}/voices/{scene["id"]}_slow.mp3', 'wb') as file:
                 file.write(res.content)
 
 account = APIRouter(prefix='/account')

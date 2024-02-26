@@ -16,12 +16,10 @@ class TTS_payload(BaseModel):
     text: str
     book: str
     role: str
-    sleepMode: Optional[int] = 0
 
 class TTS_parent_payload(BaseModel):
     email: str
     book: str
-    sleepMode: Optional[int] = 0
 
 def tts_save(book_data, file):
     raw = open(file, 'rb') 
@@ -56,14 +54,10 @@ async def TTS(data : TTS_payload):
         file = standard_wav
         if os.path.isfile(f"parent/{clean_text(data.email)}.wav"):
             file = f"parent/{clean_text(data.email)}.wav"
-
-        speed = 1.0    
-        if data.sleepMode == 1:
-            speed = 0.8
         
         raw = open(file, 'rb')
         files = {'wav': raw}
-        data = {'text': data.text, "speed": speed}
+        data = {'text': data.text, "speed": 1.0}
         res = requests.post(TTS_ENDPOINT, files=files, data = data)
         with open(f'temp.wav', 'wb') as file:
             file.write(res.content)
@@ -73,7 +67,7 @@ async def TTS(data : TTS_payload):
 
         raw = open(f"character/{characterId}.mp3", 'rb')
         files = {'wav': raw}
-        data = {'text': data.text}
+        data = {'text': data.text, "speed":1.0}
         res = requests.post(TTS_ENDPOINT, files=files, data = data)
 
         with open(f'temp.wav', 'wb') as file:
