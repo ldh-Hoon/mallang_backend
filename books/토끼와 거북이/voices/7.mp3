@@ -1,1 +1,1 @@
-{"detail":[{"type":"missing","loc":["body","speed"],"msg":"Field required","input":null,"url":"https://errors.pydantic.dev/2.6/v/missing"}]}
+Internal Server Error
