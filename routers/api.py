@@ -22,7 +22,8 @@ class TTS_parent_payload(BaseModel):
     book: str
 
 def tts_save(book_data, file):
-    raw = open(file, 'rb') 
+    with open(file, 'rb') as f:
+        raw = f.read()
 
     speed = 0.8
     for scene in book_data['script']:
