@@ -26,13 +26,12 @@ class TTS_parent_payload(BaseModel):
 def tts_save(book_data, file):
     raw = open(file, 'rb') 
 
-    speed = 0.8    
+    speed = 0.8
+    files = {'wav': raw}
     for scene in book_data['script']:
         if scene['role']=='나레이션':
-            files = {'wav': raw}
             d = {'text': scene['text'], "speed": 1.0}
             res = requests.post(TTS_ENDPOINT, files=files, data=d)
-            
             with open(f'books/{book_data["title"]}/voices/{scene["id"]}.mp3', 'wb') as file:
                 file.write(res.content)
 
@@ -41,7 +40,6 @@ def tts_save(book_data, file):
             with open(f'books/{book_data["title"]}/voices/{scene["id"]}_slow.mp3', 'wb') as file:
                 file.write(res.content)
         else:
-            files = {'wav': raw}
             d = {'text': scene['text'], "speed": speed}
             res = requests.post(TTS_ENDPOINT, files=files, data=d)
             with open(f'books/{book_data["title"]}/voices/{scene["id"]}_slow.mp3', 'wb') as file:
