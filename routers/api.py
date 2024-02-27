@@ -62,7 +62,7 @@ async def TTS(data : TTS_payload):
             raw = f.read()
         files = {'wav': raw}
         data = {'text': data.text, "speed": 1.0}
-        res = requests.post(TTS_ENDPOINT, files=files, data = data)
+        res = requests.post(TTS_ENDPOINT2, files=files, data = data)
         with open(f'temp.wav', 'wb') as file:
             file.write(res.content)
         return JSONResponse({"data":encode_audio('temp.wav')})
@@ -73,7 +73,7 @@ async def TTS(data : TTS_payload):
             raw = f.read()
         files = {'wav': raw}
         data = {'text': data.text, "speed":1.0}
-        res = requests.post(TTS_ENDPOINT, files=files, data = data)
+        res = requests.post(TTS_ENDPOINT2, files=files, data = data)
 
         with open(f'temp.wav', 'wb') as file:
             file.write(res.content)
