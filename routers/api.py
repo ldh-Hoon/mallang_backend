@@ -58,7 +58,8 @@ async def TTS(data : TTS_payload):
         if os.path.isfile(f"parent/{clean_text(data.email)}.wav"):
             file = f"parent/{clean_text(data.email)}.wav"
         
-        raw = open(file, 'rb')
+        with open(file, 'rb') as f:
+            raw = f.read()
         files = {'wav': raw}
         data = {'text': data.text, "speed": 1.0}
         res = requests.post(TTS_ENDPOINT, files=files, data = data)
@@ -68,7 +69,8 @@ async def TTS(data : TTS_payload):
     else:
         characterId = book_json(data.book)['voice_id'][data.role]
 
-        raw = open(f"character/{characterId}.mp3", 'rb')
+        with open(f"character/{characterId}.mp3", 'rb') as f:
+            raw = f.read()
         files = {'wav': raw}
         data = {'text': data.text, "speed":1.0}
         res = requests.post(TTS_ENDPOINT, files=files, data = data)
