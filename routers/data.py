@@ -58,14 +58,14 @@ async def return_file(payload : File_request_payload):
     
     elif payload.type == "audio" and payload.book != None and payload.file != None:
         json_data = book_json(payload.book)
-        if json_data['script'][int(payload.file)]['role'] == "나레이션":
-            filepath = os.path.join("./books", payload.book, "voices", f"{payload.email}_{payload.file}.mp3")
-            if not os.path.isfile(filepath):
-                return "fail"
-        else:
-            if payload.file.find("slow")!=-1:
+        if payload.file.find("slow")==-1:
+            if json_data['script'][int(payload.file)]['role'] == "나레이션":
                 filepath = os.path.join("./books", payload.book, "voices", f"{payload.email}_{payload.file}.mp3")
+                if not os.path.isfile(filepath):
+                    return "fail"
             else:
                 filepath = os.path.join("./books", payload.book, "voices", f"{payload.file}.mp3")
+        else:
+            filepath = os.path.join("./books", payload.book, "voices", f"{payload.email}_{payload.file}.mp3")
         return JSONResponse({"data":encode_audio(filepath)})
     return 'fail'
