@@ -57,7 +57,7 @@ async def return_file(payload : File_request_payload):
         return FileResponse(filepath)
     
     elif payload.type == "audio" and payload.book != None and payload.file != None:
-        json_data = get_json()
+        json_data = book_json(payload.book)
         if json_data['script'][int(payload.file)]['role'] == "나레이션":
             filepath = os.path.join("./books", payload.book, "voices", f"{payload.email}_{payload.file}.mp3")
             if not os.path.isfile(filepath):
