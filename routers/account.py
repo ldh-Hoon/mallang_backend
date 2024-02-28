@@ -38,19 +38,19 @@ def tts_save(email, book_data, file):
     for scene in book_data['script']:
         if scene['role']=='나레이션':
             files = {'wav': raw}
-            d = {'text': scene['text'], "speed": 1.0}
+            d = {'text': scene['text'], "speed": 1.0, "email":clean_text(email)}
             res = requests.post(TTS_ENDPOINT, files=files, data=d)
             with open(f'books/{book_data["title"]}/voices/{email}_{scene["id"]}.mp3', 'wb') as file:
                 file.write(res.content)
 
             files = {'wav': raw}
-            d = {'text': scene['text'], "speed": speed}
+            d = {'text': scene['text'], "speed": speed, "email":clean_text(email)}
             res = requests.post(TTS_ENDPOINT, files=files, data=d)
             with open(f'books/{book_data["title"]}/voices/{email}_{scene["id"]}_slow.mp3', 'wb') as file:
                 file.write(res.content)
         else:
             files = {'wav': raw}
-            d = {'text': scene['text'], "speed": speed}
+            d = {'text': scene['text'], "speed": speed, "email":clean_text(email)}
             res = requests.post(TTS_ENDPOINT, files=files, data=d)
             with open(f'books/{book_data["title"]}/voices/{email}_{scene["id"]}_slow.mp3', 'wb') as file:
                 file.write(res.content)
