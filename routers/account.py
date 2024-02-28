@@ -30,7 +30,7 @@ class Data_add_payload(BaseModel):
     interests: str
 
 
-def tts_save(book_data, file):
+def tts_save(email, book_data, file):
     with open(file, 'rb') as f:
         raw = f.read()
 
@@ -40,19 +40,19 @@ def tts_save(book_data, file):
             files = {'wav': raw}
             d = {'text': scene['text'], "speed": 1.0}
             res = requests.post(TTS_ENDPOINT, files=files, data=d)
-            with open(f'books/{book_data["title"]}/voices/{scene["id"]}.mp3', 'wb') as file:
+            with open(f'books/{book_data["title"]}/voices/{email}_{scene["id"]}.mp3', 'wb') as file:
                 file.write(res.content)
 
             files = {'wav': raw}
             d = {'text': scene['text'], "speed": speed}
             res = requests.post(TTS_ENDPOINT, files=files, data=d)
-            with open(f'books/{book_data["title"]}/voices/{scene["id"]}_slow.mp3', 'wb') as file:
+            with open(f'books/{book_data["title"]}/voices/{email}_{scene["id"]}_slow.mp3', 'wb') as file:
                 file.write(res.content)
         else:
             files = {'wav': raw}
             d = {'text': scene['text'], "speed": speed}
             res = requests.post(TTS_ENDPOINT, files=files, data=d)
-            with open(f'books/{book_data["title"]}/voices/{scene["id"]}_slow.mp3', 'wb') as file:
+            with open(f'books/{book_data["title"]}/voices/{email}_{scene["id"]}_slow.mp3', 'wb') as file:
                 file.write(res.content)
 
 account = APIRouter(prefix='/account')
@@ -65,7 +65,7 @@ async def login(data: Login_payload, background_tasks: BackgroundTasks):
             file = f"parent/{clean_text(data.email)}.wav"
         book_data = book_json("토끼와 거북이")
         
-        background_tasks.add_task(tts_save, book_data, file)
+        background_tasks.add_task(tts_save, data.email, book_data, file)
         return "success"
     
     return "fail"

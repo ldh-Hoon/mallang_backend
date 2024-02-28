@@ -21,7 +21,7 @@ class TTS_parent_payload(BaseModel):
     email: str
     book: str
 
-def tts_save(book_data, file):
+def tts_save(email, book_data, file):
     with open(file, 'rb') as f:
         raw = f.read()
 
@@ -29,21 +29,21 @@ def tts_save(book_data, file):
     for scene in book_data['script']:
         if scene['role']=='나레이션':
             files = {'wav': raw}
-            d = {'text': scene['text'], "speed": 1.0}
+            d = {'text': scene['text'], "speed": 1.0, "email":clean_text(email)}
             res = requests.post(TTS_ENDPOINT, files=files, data=d)
-            with open(f'books/{book_data["title"]}/voices/{scene["id"]}.mp3', 'wb') as file:
+            with open(f'books/{book_data["title"]}/voices/{email}_{scene["id"]}.mp3', 'wb') as file:
                 file.write(res.content)
 
             files = {'wav': raw}
-            d = {'text': scene['text'], "speed": speed}
+            d = {'text': scene['text'], "speed": speed, "email":clean_text(email)}
             res = requests.post(TTS_ENDPOINT, files=files, data=d)
-            with open(f'books/{book_data["title"]}/voices/{scene["id"]}_slow.mp3', 'wb') as file:
+            with open(f'books/{book_data["title"]}/voices/{email}_{scene["id"]}_slow.mp3', 'wb') as file:
                 file.write(res.content)
         else:
             files = {'wav': raw}
-            d = {'text': scene['text'], "speed": speed}
+            d = {'text': scene['text'], "speed": speed, "email":clean_text(email)}
             res = requests.post(TTS_ENDPOINT, files=files, data=d)
-            with open(f'books/{book_data["title"]}/voices/{scene["id"]}_slow.mp3', 'wb') as file:
+            with open(f'books/{book_data["title"]}/voices/{email}_{scene["id"]}_slow.mp3', 'wb') as file:
                 file.write(res.content)
 
 @api.post('/tts')
@@ -61,7 +61,7 @@ async def TTS(data : TTS_payload):
         with open(file, 'rb') as f:
             raw = f.read()
         files = {'wav': raw}
-        data = {'text': data.text, "speed": 1.0}
+        data = {'text': data.text, "speed": 1.0, "email":clean_text(data.email)}
         res = requests.post(TTS_ENDPOINT2, files=files, data = data)
         with open(f'temp.wav', 'wb') as file:
             file.write(res.content)
@@ -72,7 +72,7 @@ async def TTS(data : TTS_payload):
         with open(f"character/{characterId}.mp3", 'rb') as f:
             raw = f.read()
         files = {'wav': raw}
-        data = {'text': data.text, "speed":1.0}
+        data = {'text': data.text, "speed":1.0, "email":clean_text(data.email)}
         res = requests.post(TTS_ENDPOINT2, files=files, data = data)
 
         with open(f'temp.wav', 'wb') as file:
@@ -92,7 +92,7 @@ async def prepare(data : TTS_parent_payload, background_tasks: BackgroundTasks):
         file = f"parent/{clean_text(data.email)}.wav"
     book_data = book_json(data.book)
     
-    background_tasks.add_task(tts_save, book_data, file)
+    background_tasks.add_task(tts_save, data.email, book_data, file)
 
     data = {
         "status":"success"

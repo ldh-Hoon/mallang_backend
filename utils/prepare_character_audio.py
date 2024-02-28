@@ -11,7 +11,7 @@ def prepare(book):
             with open(f"character/{character_id_list[scene['role']]}.mp3", "rb") as f:
                 raw = f.read()
             files = {'wav': raw}
-            data = {'text': scene['text'], "speed":1.0}
+            data = {'text': scene['text'], "speed":1.0, "email":"char"}
             res = requests.post(TTS_ENDPOINT, files=files, data=data)
             with open(f'books/{book}/voices/{scene["id"]}.mp3', 'wb') as file:
                 file.write(res.content)
