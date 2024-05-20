@@ -95,7 +95,7 @@ def add_account(email, password, name): #  계정 추가
     update(data)
     return True
 
-def add_data(name, email, phoneNumber, interests, age, gender):
+def add_data(name, email, age, gender):
     data = get_json()
 
     if not email in data:
