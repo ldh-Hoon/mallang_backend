@@ -26,10 +26,8 @@ def update(data):
                 "pw" : "bbbb",
                 "info" : {
                     "name" : "김차돌",
-                    "phoneNumber" : None,
                     "age" : None,
                     "gender" : None,
-                    "interests" : None,
                     "history" : None,
                 }
             }
@@ -50,10 +48,8 @@ def get_json():
                 "pw" : "bbbb",
                 "info" : {
                     "name" : "김차돌",
-                    "phoneNumber" : None,
                     "age" : None,
                     "gender" : None,
-                    "interests" : None,
                     "history" : None,
                 }
             }
@@ -85,10 +81,8 @@ def add_account(email, password, name): #  계정 추가
             "pw" : password,
             "info" : {
                 "name" : name,
-                "phoneNumber" : None,
                 "age" : None,
                 "gender" : None,
-                "interests" : None,
                 "history" : None,
             }
     }
@@ -104,10 +98,8 @@ def add_data(name, email, age, gender):
             "pw" : data[email]["pw"],
             "info" : {
                 "name" : name,
-                "phoneNumber" : phoneNumber,
                 "age" : age,
                 "gender" : gender,
-                "interests" : interests,
                 "history" : None,
             }
     }
