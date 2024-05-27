@@ -30,6 +30,8 @@ async def upload_audio(file : UploadFile, email):
 async def show(type, book, filename):
     if type == 'image':
         return FileResponse(f"books/{book}/img/{filename}.png")
+    elif type == 'gif':
+        return FileResponse(f"books/{book}/img/{filename}.gif")
     elif type == 'audio':
         return FileResponse(f"books/{book}/voices/{filename}.mp3")
 
