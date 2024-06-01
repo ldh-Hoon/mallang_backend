@@ -29,7 +29,7 @@ async def upload_audio(file : UploadFile, email):
 @data_api.get('/{type}/{book}/{filename}')
 async def show(type, book, filename):
     if type == 'image':
-        return FileResponse(f"books/{book}/img/{filename}.png")
+        return FileResponse(f"books/{book}/img/{filename}.gif")
     elif type == 'gif':
         return FileResponse(f"books/{book}/img/{filename}.gif")
     elif type == 'audio':
@@ -52,7 +52,7 @@ async def return_file(payload : File_request_payload):
     
     elif payload.type == "image" and payload.book != None and payload.file != None:
         
-        filepath = os.path.join("./books", payload.book, "img",f"{payload.file}.png")
+        filepath = os.path.join("./books", payload.book, "img",f"{payload.file}.gif")
         if not os.path.isfile(filepath):
             return "fail"
         
