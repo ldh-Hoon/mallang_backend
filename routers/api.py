@@ -7,6 +7,7 @@ from typing import Optional
 from fastapi.responses import Response, FileResponse, JSONResponse
 from utils.urls import *
 from utils.convert import *
+from mallang_tts import *
 
 standard_wav = "parent/a1.wav"
 api = APIRouter(prefix='/api')
@@ -30,21 +31,20 @@ def tts_save(email, book_data, file):
         if scene['role']=='나레이션':
             files = {'wav': raw}
             d = {'text': scene['text'], "speed": 1.0, "email":clean_text(email)}
-            res = requests.post(TTS_ENDPOINT, files=files, data=d)
-            with open(f'books/{book_data["title"]}/voices/{email}_{scene["id"]}.mp3', 'wb') as file:
-                file.write(res.content)
+            # res = requests.post(TTS_ENDPOINT, files=files, data=d)
+            tts(d['text'], d['speed'], files['wav'], f"books/{book_data["title"]}/voices/{email}_{scene["id"]}.mp3")
 
             files = {'wav': raw}
             d = {'text': scene['text'], "speed": speed, "email":clean_text(email)}
-            res = requests.post(TTS_ENDPOINT, files=files, data=d)
-            with open(f'books/{book_data["title"]}/voices/{email}_{scene["id"]}_slow.mp3', 'wb') as file:
-                file.write(res.content)
+            # res = requests.post(TTS_ENDPOINT, files=files, data=d)
+            tts(d['text'], d['speed'], files['wav'], f"books/{book_data["title"]}/voices/{email}_{scene["id"]}_slow.mp3")
+
         else:
             files = {'wav': raw}
             d = {'text': scene['text'], "speed": speed, "email":clean_text(email)}
-            res = requests.post(TTS_ENDPOINT, files=files, data=d)
-            with open(f'books/{book_data["title"]}/voices/{email}_{scene["id"]}_slow.mp3', 'wb') as file:
-                file.write(res.content)
+            # res = requests.post(TTS_ENDPOINT, files=files, data=d)
+            tts(d['text'], d['speed'], files['wav'], f"books/{book_data["title"]}/voices/{email}_{scene["id"]}.mp3")
+
 
 @api.post('/tts')
 async def TTS(data : TTS_payload):
@@ -62,9 +62,8 @@ async def TTS(data : TTS_payload):
             raw = f.read()
         files = {'wav': raw}
         data = {'text': data.text, "speed": 1.0, "email":clean_text(data.email)}
-        res = requests.post(TTS_ENDPOINT2, files=files, data = data)
-        with open(f'temp.wav', 'wb') as file:
-            file.write(res.content)
+        # res = requests.post(TTS_ENDPOINT2, files=files, data = data)
+        tts(data['text'], data['speed'], files['wav'], "temp.wav")
         return JSONResponse({"data":encode_audio('temp.wav')})
     else:
         characterId = book_json(data.book)['voice_id'][data.role]
@@ -73,10 +72,8 @@ async def TTS(data : TTS_payload):
             raw = f.read()
         files = {'wav': raw}
         data = {'text': data.text, "speed":1.0, "email":clean_text(data.email)}
-        res = requests.post(TTS_ENDPOINT2, files=files, data = data)
-
-        with open(f'temp.wav', 'wb') as file:
-            file.write(res.content)
+        # res = requests.post(TTS_ENDPOINT2, files=files, data = data)
+        tts(data['text'], data['speed'], files['wav'], "temp.wav")
         return JSONResponse({"data":encode_audio('temp.wav')})
         
 
