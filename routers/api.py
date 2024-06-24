@@ -1,5 +1,5 @@
 import os, requests
-from fastapi import APIRouter, UploadFile, BackgroundTasks
+from fastapi import APIRouter, UploadFile, BackgroundTasks, Form, File
 from pydantic import BaseModel
 from utils.data_control import *
 from typing import Optional
@@ -7,6 +7,7 @@ from typing import Optional
 from fastapi.responses import Response, FileResponse, JSONResponse
 from utils.urls import *
 from utils.convert import *
+from mallang_tts import tts
 
 standard_wav = "parent/a1.wav"
 api = APIRouter(prefix='/api')
@@ -134,3 +135,15 @@ async def prepare(file : UploadFile, email, book, role):
     
     return JSONResponse({"data":encode_audio('rvc_temp.wav')})
 
+@api.post('/tts_infer') 
+async def api(text: str = Form(...), wav: UploadFile = File(...), speed: float = Form(1.0), email: str = Form(...)):
+    wav_content = await wav.read()
+    email = email
+    text = text
+    speed = speed
+    with open(f"./wavs/input_{email}.wav", "wb") as file:
+        file.write(wav_content)
+    # loop = asyncio.get_event_loop()
+    # await loop.run_in_executor(None, tts, text, speed, f"./wavs/input_{email}.wav", f"./wavs/output_{email}.wav")
+    tts(text, speed, f"./wavs/input_{email}.wav", f"./wavs/output_{email}.wav")
+    return FileResponse(f"./wavs/output_{email}.wav", filename=f"output_{email}.wav")
