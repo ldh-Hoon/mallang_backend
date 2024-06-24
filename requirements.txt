@@ -2,3 +2,6 @@ uvicorn
 requests
 fastapi
 pydub
+torch
+torchudio
+tts
