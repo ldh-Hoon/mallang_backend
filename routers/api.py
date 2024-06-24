@@ -7,7 +7,7 @@ from typing import Optional
 from fastapi.responses import Response, FileResponse, JSONResponse
 from utils.urls import *
 from utils.convert import *
-from mallang_tts import tts
+from routers.mallang_tts import tts
 
 standard_wav = "parent/a1.wav"
 api = APIRouter(prefix='/api')
