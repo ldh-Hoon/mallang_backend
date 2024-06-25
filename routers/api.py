@@ -8,6 +8,9 @@ from fastapi.responses import Response, FileResponse, JSONResponse
 from utils.urls import *
 from utils.convert import *
 from routers.mallang_tts import *
+#RVC추론 및 음성저장
+from RVC.VoiceConversion import inference, get_tgt_sr
+from scipy.io import wavfile
 
 standard_wav = "parent/a1.wav"
 api = APIRouter(prefix='/api')
@@ -117,17 +120,20 @@ async def prepare(file : UploadFile, email, book, role):
     if not book in books:
         return "fail"
     characterId = book_json(book)['voice_id'][role]
+    #RVC 추론코드
+    opt_wav = inference(characterId=characterId, userAge=age, userGender=gender, wavpath=f"temp_{clean_text(email)}.wav")
+    wavfile.write(f'rvc_temp.wav',get_tgt_sr(),opt_wav) #추론된 음성 rvc_temp 로 저장
+    
+    # files = {'wav': open(f"temp_{clean_text(email)}.wav", 'rb')}
+    # data = {'CharacterId': characterId,
+    #         'age': age,
+    #         'gender': gender}
+    
+    # requests.post(f'{RVC_ENDPOINT}/upload', files=files, data=data)
 
-
-    files = {'wav': open(f"temp_{clean_text(email)}.wav", 'rb')}
-    data = {'CharacterId': characterId,
-            'age': age,
-            'gender': gender}
-    requests.post(f'{RVC_ENDPOINT}/upload', files=files, data=data)
-
-    response = requests.get(f'{RVC_ENDPOINT}/download')
-    with open(f'rvc_temp.wav', 'wb') as file:
-        file.write(response.content)
+    # response = requests.get(f'{RVC_ENDPOINT}/download')
+    # with open(f'rvc_temp.wav', 'wb') as file:
+    #     file.write(response.content)
     
     return JSONResponse({"data":encode_audio('rvc_temp.wav')})
 
