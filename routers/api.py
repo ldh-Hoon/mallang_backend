@@ -35,12 +35,12 @@ def tts_save(email, book_data, file):
             files = {'wav': raw}
             d = {'text': scene['text'], "speed": 1.0, "email":clean_text(email)}
             # res = requests.post(TTS_ENDPOINT, files=files, data=d)
-            tts(d['text'], d['speed'], files['wav'], f"books/{book_data["title"]}/voices/{email}_{scene["id"]}.mp3")
+            tts(d['text'], d['speed'], files['wav'], f"books/{book_data['title']}/voices/{email}_{scene['id']}.mp3")
 
             files = {'wav': raw}
             d = {'text': scene['text'], "speed": speed, "email":clean_text(email)}
             # res = requests.post(TTS_ENDPOINT, files=files, data=d)
-            tts(d['text'], d['speed'], files['wav'], f"books/{book_data["title"]}/voices/{email}_{scene["id"]}_slow.mp3")
+            tts(d['text'], d['speed'], files['wav'], f"books/{book_data['title']}/voices/{email}_{scene['id']}_slow.mp3")
 
         else:
             files = {'wav': raw}
