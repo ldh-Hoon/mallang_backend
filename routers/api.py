@@ -46,7 +46,7 @@ def tts_save(email, book_data, file):
             files = {'wav': raw}
             d = {'text': scene['text'], "speed": speed, "email":clean_text(email)}
             # res = requests.post(TTS_ENDPOINT, files=files, data=d)
-            tts(d['text'], d['speed'], files['wav'], f"books/{book_data["title"]}/voices/{email}_{scene["id"]}.mp3")
+            tts(d['text'], d['speed'], files['wav'], f"books/{book_data['title']}/voices/{email}_{scene['id']}.mp3")
 
 
 @api.post('/tts')
