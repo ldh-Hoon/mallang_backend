@@ -1,3 +1,6 @@
+print("tts endpoint:")
 ipip = input()
-TTS_ENDPOINT = f"http://{ipip}:8501/tts"
-RVC_ENDPOINT = f"http://{ipip}:5005"
+TTS_ENDPOINT = ipip
+print("rvc endpoint:")
+ripip = input()
+RVC_ENDPOINT = ripip
