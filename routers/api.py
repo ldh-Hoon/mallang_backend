@@ -99,7 +99,7 @@ async def prepare(data : TTS_parent_payload, background_tasks: BackgroundTasks):
     return JSONResponse(data)
 
 @api.post('/rvc/{email}/{book}/{role}')
-async def prepare(file : UploadFile, email, book, role):
+async def rvc_prepare(file : UploadFile, email, book, role):
     content = await file.read()
     with open(f"temp_{clean_text(email)}.aac", 'wb') as file:
         file.write(content)
