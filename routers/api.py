@@ -83,7 +83,7 @@ async def prepare(data : TTS_parent_payload, background_tasks: BackgroundTasks):
     json_data = get_json()
 
     if not data.email in json_data:
-        print("no email to make TTS")
+        print(f"{data.email} is you, no email to make TTS")
         return 'fail'
 
     file = f"parent/a1.wav"
