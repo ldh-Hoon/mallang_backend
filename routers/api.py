@@ -45,10 +45,10 @@ def conv_to_mp3(wav, mp3):
 def tts_save(email, book_data, file):
     with open(file, 'rb') as f:
         raw = f.read()
-    files = {'wav': raw}
     speed = 0.8
     start_time = time.time()
     for scene in book_data['script']:
+        files = {'wav': raw}
         if scene['role']=='나레이션':
             d = {'text': scene['text'], "speed": 1.0, "email":clean_text(email)}
             if not os.path.exists(f"books/{book_data['title']}/voices/{email}_{scene['id']}.mp3"):
