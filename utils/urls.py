@@ -1,2 +1,3 @@
-TTS_ENDPOINT = "http://221.163.126.230:8501/tts"
-RVC_ENDPOINT = "http://124.62.22.104:5005"
+ipip = input()
+TTS_ENDPOINT = f"http://{ipip}:8501/tts"
+RVC_ENDPOINT = f"http://{ipip}:5005"
