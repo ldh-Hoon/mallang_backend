@@ -12,6 +12,9 @@ from routers.mallang_tts import *
 from RVC.VoiceConversion import inference, get_tgt_sr
 from scipy.io import wavfile
 
+from pydub import AudioSegment
+
+
 standard_wav = "parent/a1.wav"
 api = APIRouter(prefix='/api')
 
@@ -25,6 +28,12 @@ class TTS_parent_payload(BaseModel):
     email: str
     book: str
 
+def conv_to_mp3(wav, mp3):
+    wav_output = wav
+    mp3_output = mp3
+    audio = AudioSegment.from_wav(wav_output)
+    audio.export(mp3_output, format="mp3")
+
 def tts_save(email, book_data, file):
     with open(file, 'rb') as f:
         raw = f.read()
@@ -35,19 +44,14 @@ def tts_save(email, book_data, file):
             files = {'wav': raw}
             d = {'text': scene['text'], "speed": 1.0, "email":clean_text(email)}
             # res = requests.post(TTS_ENDPOINT, files=files, data=d)
-            tts(d['text'], d['speed'], files['wav'], f"books/{book_data['title']}/voices/{email}_{scene['id']}.mp3")
+            tts(d['text'], d['speed'], files['wav'], f"books/{book_data['title']}/voices/{email}_{scene['id']}.wav")
+            conv_to_mp3(f"books/{book_data['title']}/voices/{email}_{scene['id']}.wav", f"books/{book_data['title']}/voices/{email}_{scene['id']}.mp3")
 
             files = {'wav': raw}
             d = {'text': scene['text'], "speed": speed, "email":clean_text(email)}
             # res = requests.post(TTS_ENDPOINT, files=files, data=d)
-            tts(d['text'], d['speed'], files['wav'], f"books/{book_data['title']}/voices/{email}_{scene['id']}_slow.mp3")
-
-        else:
-            files = {'wav': raw}
-            d = {'text': scene['text'], "speed": speed, "email":clean_text(email)}
-            # res = requests.post(TTS_ENDPOINT, files=files, data=d)
-            tts(d['text'], d['speed'], files['wav'], f"books/{book_data['title']}/voices/{email}_{scene['id']}.mp3")
-
+            tts(d['text'], d['speed'], files['wav'], f"books/{book_data['title']}/voices/{email}_{scene['id']}_slow.wav")
+            conv_to_mp3(f"books/{book_data['title']}/voices/{email}_{scene['id']}_slow.wav", f"books/{book_data['title']}/voices/{email}_{scene['id']}_slow.mp3")
 
 @api.post('/tts')
 async def TTS(data : TTS_payload):
