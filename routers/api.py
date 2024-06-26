@@ -7,10 +7,11 @@ from typing import Optional
 from fastapi.responses import Response, FileResponse, JSONResponse
 from utils.urls import *
 from utils.convert import *
-from routers.mallang_tts import *
+
+#from routers.mallang_tts import *
 #RVC추론 및 음성저장
-from RVC.VoiceConversion import inference, get_tgt_sr
-from scipy.io import wavfile
+#from RVC.VoiceConversion import inference, get_tgt_sr
+#from scipy.io import wavfile
 
 from pydub import AudioSegment
 
@@ -33,27 +34,40 @@ class TTS_parent_payload(BaseModel):
 def conv_to_mp3(wav, mp3):
     wav_output = wav
     mp3_output = mp3
+
+    # WAV 파일을 읽어서 MP3로 변환
     audio = AudioSegment.from_wav(wav_output)
     audio.export(mp3_output, format="mp3")
 
+    if os.path.exists(wav_output):
+        os.remove(wav_output)
+
 def tts_save(email, book_data, file):
+    with open(file, 'rb') as f:
+        raw = f.read()
+    files = {'wav': raw}
     speed = 0.8
     start_time = time.time()
     for scene in book_data['script']:
         if scene['role']=='나레이션':
             d = {'text': scene['text'], "speed": 1.0, "email":clean_text(email)}
-            # res = requests.post(TTS_ENDPOINT, files=files, data=d)
-            tts(d['text'], d['speed'], file, f"books/{book_data['title']}/voices/{email}_{scene['id']}.wav")
-            conv_to_mp3(f"books/{book_data['title']}/voices/{email}_{scene['id']}.wav", f"books/{book_data['title']}/voices/{email}_{scene['id']}.mp3")
+            if not os.path.exists(f"books/{book_data['title']}/voices/{email}_{scene['id']}.mp3"):
+                res = requests.post(TTS_ENDPOINT, files=files, data=d)
+                with open(f'books/{book_data["title"]}/voices/{email}_{scene["id"]}.mp3', 'wb') as file:
+                    file.write(res.content)
+                #tts(d['text'], d['speed'], file, f"books/{book_data['title']}/voices/{email}_{scene['id']}.wav")
+                #conv_to_mp3(f"books/{book_data['title']}/voices/{email}_{scene['id']}.wav", f"books/{book_data['title']}/voices/{email}_{scene['id']}.mp3")
 
-            d = {'text': scene['text'], "speed": speed, "email":clean_text(email)}
-            # res = requests.post(TTS_ENDPOINT, files=files, data=d)
-            tts(d['text'], d['speed'], file, f"books/{book_data['title']}/voices/{email}_{scene['id']}_slow.wav")
-            conv_to_mp3(f"books/{book_data['title']}/voices/{email}_{scene['id']}_slow.wav", f"books/{book_data['title']}/voices/{email}_{scene['id']}_slow.mp3")
+                d = {'text': scene['text'], "speed": speed, "email":clean_text(email)}
+                res = requests.post(TTS_ENDPOINT, files=files, data=d)
+                with open(f'books/{book_data["title"]}/voices/{email}_{scene["id"]}_slow.mp3', 'wb') as file:
+                    file.write(res.content)
+                #tts(d['text'], d['speed'], file, f"books/{book_data['title']}/voices/{email}_{scene['id']}_slow.wav")
+                #conv_to_mp3(f"books/{book_data['title']}/voices/{email}_{scene['id']}_slow.wav", f"books/{book_data['title']}/voices/{email}_{scene['id']}_slow.mp3")
             print(f"{scene['id']} 완료")
     end_time = time.time()
 
-    print(f"{email}, {book_data} 나레이션 생성 완료 ({end_time - start_time})")
+    print(f"{email}, {book_data['title']} 나레이션 생성 완료 ({end_time - start_time})")
 
 @api.post('/tts')
 async def TTS(data : TTS_payload):
@@ -72,7 +86,7 @@ async def TTS(data : TTS_payload):
         files = {'wav': raw}
         data = {'text': data.text, "speed": 1.0, "email":clean_text(data.email)}
         # res = requests.post(TTS_ENDPOINT2, files=files, data = data)
-        tts(data['text'], data['speed'], files['wav'], "temp.wav")
+        #tts(data['text'], data['speed'], files['wav'], "temp.wav")
         return JSONResponse({"data":encode_audio('temp.wav')})
     else:
         characterId = book_json(data.book)['voice_id'][data.role]
@@ -82,7 +96,7 @@ async def TTS(data : TTS_payload):
         files = {'wav': raw}
         data = {'text': data.text, "speed":1.0, "email":clean_text(data.email)}
         # res = requests.post(TTS_ENDPOINT2, files=files, data = data)
-        tts(data['text'], data['speed'], files['wav'], "temp.wav")
+        #tts(data['text'], data['speed'], files['wav'], "temp.wav")
         return JSONResponse({"data":encode_audio('temp.wav')})
         
 
@@ -130,19 +144,19 @@ async def rvc_prepare(file : UploadFile, email, book, role):
     characterId = book_json(book)['voice_id'][role]
 
     #RVC 추론코드
-    opt_wav = inference(characterId=characterId, userAge=age, userGender=gender, wavpath=f"temp_{clean_text(email)}.wav")
-    wavfile.write(f'rvc_temp.wav',get_tgt_sr(),opt_wav) #추론된 음성 rvc_temp 로 저장
+    #opt_wav = inference(characterId=characterId, userAge=age, userGender=gender, wavpath=f"temp_{clean_text(email)}.wav")
+    #wavfile.write(f'rvc_temp.wav',get_tgt_sr(),opt_wav) #추론된 음성 rvc_temp 로 저장
     
-    # files = {'wav': open(f"temp_{clean_text(email)}.wav", 'rb')}
-    # data = {'CharacterId': characterId,
-    #         'age': age,
-    #         'gender': gender}
+    files = {'wav': open(f"temp_{clean_text(email)}.wav", 'rb')}
+    data = {'CharacterId': characterId,
+            'age': age,
+            'gender': gender}
     
-    # requests.post(f'{RVC_ENDPOINT}/upload', files=files, data=data)
+    requests.post(f'{RVC_ENDPOINT}/upload', files=files, data=data)
 
-    # response = requests.get(f'{RVC_ENDPOINT}/download')
-    # with open(f'rvc_temp.wav', 'wb') as file:
-    #     file.write(response.content)
+    response = requests.get(f'{RVC_ENDPOINT}/download')
+    with open(f'rvc_temp.wav', 'wb') as file:
+        file.write(response.content)
     
     return JSONResponse({"data":encode_audio('rvc_temp.wav')})
 
