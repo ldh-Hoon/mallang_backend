@@ -14,6 +14,9 @@ from scipy.io import wavfile
 
 from pydub import AudioSegment
 
+import time
+
+
 standard_wav = "parent/a1.wav"
 api = APIRouter(prefix='/api')
 
@@ -35,6 +38,7 @@ def conv_to_mp3(wav, mp3):
 
 def tts_save(email, book_data, file):
     speed = 0.8
+    start_time = time.time()
     for scene in book_data['script']:
         if scene['role']=='나레이션':
             d = {'text': scene['text'], "speed": 1.0, "email":clean_text(email)}
@@ -46,6 +50,9 @@ def tts_save(email, book_data, file):
             # res = requests.post(TTS_ENDPOINT, files=files, data=d)
             tts(d['text'], d['speed'], file, f"books/{book_data['title']}/voices/{email}_{scene['id']}_slow.wav")
             conv_to_mp3(f"books/{book_data['title']}/voices/{email}_{scene['id']}_slow.wav", f"books/{book_data['title']}/voices/{email}_{scene['id']}_slow.mp3")
+    end_time = time.time()
+
+    print(f"{email}, {book_data} 나레이션 생성 완료 ({end_time - start_time}초)")
 
 @api.post('/tts')
 async def TTS(data : TTS_payload):
@@ -115,6 +122,7 @@ async def rvc_prepare(file : UploadFile, email, book, role):
     if json_data[email]['info']['gender'] == '남성':
         gender = 1
     
+    age = int(age)
     books = os.listdir('./books')
     if not book in books:
         return "fail"
