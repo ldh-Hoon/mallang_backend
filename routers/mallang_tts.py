@@ -1,10 +1,12 @@
+import os
 import torch
 import torchaudio
 from TTS.tts.configs.xtts_config import XttsConfig
 from TTS.tts.models.xtts import Xtts
 from huggingface_hub import snapshot_download
 
-#snapshot_download(repo_id="princesslucy/mallang_xtts_v2", local_dir='./model')
+if not os.path.isdir("model"):
+    snapshot_download(repo_id="princesslucy/mallang_xtts_v2", local_dir='./model')
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 config = XttsConfig()
 config.load_json("./model/config.json")
