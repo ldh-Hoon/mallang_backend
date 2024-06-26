@@ -14,7 +14,6 @@ from scipy.io import wavfile
 
 from pydub import AudioSegment
 
-
 standard_wav = "parent/a1.wav"
 api = APIRouter(prefix='/api')
 
@@ -35,22 +34,17 @@ def conv_to_mp3(wav, mp3):
     audio.export(mp3_output, format="mp3")
 
 def tts_save(email, book_data, file):
-    with open(file, 'rb') as f:
-        raw = f.read()
-
     speed = 0.8
     for scene in book_data['script']:
         if scene['role']=='나레이션':
-            files = {'wav': raw}
             d = {'text': scene['text'], "speed": 1.0, "email":clean_text(email)}
             # res = requests.post(TTS_ENDPOINT, files=files, data=d)
-            tts(d['text'], d['speed'], files['wav'], f"books/{book_data['title']}/voices/{email}_{scene['id']}.wav")
+            tts(d['text'], d['speed'], file, f"books/{book_data['title']}/voices/{email}_{scene['id']}.wav")
             conv_to_mp3(f"books/{book_data['title']}/voices/{email}_{scene['id']}.wav", f"books/{book_data['title']}/voices/{email}_{scene['id']}.mp3")
 
-            files = {'wav': raw}
             d = {'text': scene['text'], "speed": speed, "email":clean_text(email)}
             # res = requests.post(TTS_ENDPOINT, files=files, data=d)
-            tts(d['text'], d['speed'], files['wav'], f"books/{book_data['title']}/voices/{email}_{scene['id']}_slow.wav")
+            tts(d['text'], d['speed'], file, f"books/{book_data['title']}/voices/{email}_{scene['id']}_slow.wav")
             conv_to_mp3(f"books/{book_data['title']}/voices/{email}_{scene['id']}_slow.wav", f"books/{book_data['title']}/voices/{email}_{scene['id']}_slow.mp3")
 
 @api.post('/tts')
@@ -89,6 +83,7 @@ async def prepare(data : TTS_parent_payload, background_tasks: BackgroundTasks):
     json_data = get_json()
 
     if not data.email in json_data:
+        print("no email to make TTS")
         return 'fail'
 
     file = f"parent/a1.wav"
@@ -124,6 +119,7 @@ async def prepare(file : UploadFile, email, book, role):
     if not book in books:
         return "fail"
     characterId = book_json(book)['voice_id'][role]
+
     #RVC 추론코드
     opt_wav = inference(characterId=characterId, userAge=age, userGender=gender, wavpath=f"temp_{clean_text(email)}.wav")
     wavfile.write(f'rvc_temp.wav',get_tgt_sr(),opt_wav) #추론된 음성 rvc_temp 로 저장
