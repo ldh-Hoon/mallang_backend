@@ -50,9 +50,10 @@ def tts_save(email, book_data, file):
             # res = requests.post(TTS_ENDPOINT, files=files, data=d)
             tts(d['text'], d['speed'], file, f"books/{book_data['title']}/voices/{email}_{scene['id']}_slow.wav")
             conv_to_mp3(f"books/{book_data['title']}/voices/{email}_{scene['id']}_slow.wav", f"books/{book_data['title']}/voices/{email}_{scene['id']}_slow.mp3")
+            print(f"{scene['id']} 완료")
     end_time = time.time()
 
-    print(f"{email}, {book_data} 나레이션 생성 완료 ({end_time - start_time}초)")
+    print(f"{email}, {book_data} 나레이션 생성 완료 ({end_time - start_time})")
 
 @api.post('/tts')
 async def TTS(data : TTS_payload):
