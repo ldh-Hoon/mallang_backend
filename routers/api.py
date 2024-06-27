@@ -51,18 +51,19 @@ def tts_save(email, book_data, file):
         files = {'wav': raw}
         if scene['role']=='나레이션':
             d = {'text': scene['text'], "speed": 1.0, "email":clean_text(email)}
-            res = requests.post(TTS_ENDPOINT, files=files, data=d)
-            with open(f'books/{book_data["title"]}/voices/{email}_{scene["id"]}.mp3', 'wb') as file:
-                file.write(res.content)
-            #tts(d['text'], d['speed'], file, f"books/{book_data['title']}/voices/{email}_{scene['id']}.wav")
-            #conv_to_mp3(f"books/{book_data['title']}/voices/{email}_{scene['id']}.wav", f"books/{book_data['title']}/voices/{email}_{scene['id']}.mp3")
+            if not os.path.exists(f"books/{book_data['title']}/voices/{email}_{scene['id']}.mp3"):
+                res = requests.post(TTS_ENDPOINT, files=files, data=d)
+                with open(f'books/{book_data["title"]}/voices/{email}_{scene["id"]}.mp3', 'wb') as file:
+                    file.write(res.content)
+                #tts(d['text'], d['speed'], file, f"books/{book_data['title']}/voices/{email}_{scene['id']}.wav")
+                #conv_to_mp3(f"books/{book_data['title']}/voices/{email}_{scene['id']}.wav", f"books/{book_data['title']}/voices/{email}_{scene['id']}.mp3")
 
-            d = {'text': scene['text'], "speed": speed, "email":clean_text(email)}
-            res = requests.post(TTS_ENDPOINT, files=files, data=d)
-            with open(f'books/{book_data["title"]}/voices/{email}_{scene["id"]}_slow.mp3', 'wb') as file:
-                file.write(res.content)
-            #tts(d['text'], d['speed'], file, f"books/{book_data['title']}/voices/{email}_{scene['id']}_slow.wav")
-            #conv_to_mp3(f"books/{book_data['title']}/voices/{email}_{scene['id']}_slow.wav", f"books/{book_data['title']}/voices/{email}_{scene['id']}_slow.mp3")
+                d = {'text': scene['text'], "speed": speed, "email":clean_text(email)}
+                res = requests.post(TTS_ENDPOINT, files=files, data=d)
+                with open(f'books/{book_data["title"]}/voices/{email}_{scene["id"]}_slow.mp3', 'wb') as file:
+                    file.write(res.content)
+                #tts(d['text'], d['speed'], file, f"books/{book_data['title']}/voices/{email}_{scene['id']}_slow.wav")
+                #conv_to_mp3(f"books/{book_data['title']}/voices/{email}_{scene['id']}_slow.wav", f"books/{book_data['title']}/voices/{email}_{scene['id']}_slow.mp3")
             print(f"{scene['id']} 완료")
     end_time = time.time()
 
@@ -111,13 +112,18 @@ async def prepare(data : TTS_parent_payload, background_tasks: BackgroundTasks):
     if os.path.isfile(f"parent/{clean_text(data.email)}.wav"):
         file = f"parent/{clean_text(data.email)}.wav"
     book_data = book_json(data.book)
-    
-    background_tasks.add_task(tts_save, data.email, book_data, file)
+
+    if json_data[data.email]['info']['history'] == None:
+        json_data[data.email]['info']['history'] = []
+    if not book_data in json_data[data.email]['info']['history']:
+        background_tasks.add_task(tts_save, data.email, book_data, file)
+        json_data[data.email]['info']['history'].append(data.book)
 
     data = {
         "status":"success"
     }
     return JSONResponse(data)
+
 
 @api.post('/rvc/{email}/{book}/{role}')
 async def rvc_prepare(file : UploadFile, email, book, role):
