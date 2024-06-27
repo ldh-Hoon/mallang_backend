@@ -59,7 +59,7 @@ async def tts_save(email, book_data, file):
                 d = {'text': scene['text'], "speed": 1.0, "email": clean_text(email)}
                 data = FormData()
                 data.add_field('text', scene['text'])
-                data.add_field("speed", 1.0)
+                data.add_field("speed", str(1.0))
                 data.add_field("email", clean_text(email))
                 data.add_field('wav', raw, content_type='audio/wav')
 
@@ -72,7 +72,7 @@ async def tts_save(email, book_data, file):
                     d = {'text': scene['text'], "speed": speed, "email": clean_text(email)}
                     data = FormData()
                     data.add_field('text', scene['text'])
-                    data.add_field("speed", speed)
+                    data.add_field("speed", str(speed))
                     data.add_field("email", clean_text(email))
                     data.add_field('wav', raw, content_type='audio/wav')
 
