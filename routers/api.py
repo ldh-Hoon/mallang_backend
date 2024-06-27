@@ -19,6 +19,8 @@ import time
 import asyncio
 import aiohttp
 import aiofiles
+from aiohttp import FormData
+
 
 queue = asyncio.Queue()
 
@@ -53,17 +55,28 @@ async def tts_save(email, book_data, file):
         speed = 0.8
         start_time = time.time()
         for scene in book_data['script']:
-            files = {'wav': raw}
             if scene['role'] == '나레이션':
                 d = {'text': scene['text'], "speed": 1.0, "email": clean_text(email)}
+                data = FormData()
+                data.add_field('text': scene['text'])
+                data.add_field("speed": 1.0)
+                data.add_field("email": clean_text(email))
+                data.add_field('wav', open(file, 'rb'), filename='file.wav', content_type='audio/wav')
+
                 if not os.path.exists(f"books/{book_data['title']}/voices/{email}_{scene['id']}.mp3"):
-                    async with session.post(TTS_ENDPOINT, data=d, files=files) as res:
+                    async with session.post(TTS_ENDPOINT, data=data) as res:
                         content = await res.read()
                         async with aiofiles.open(f'books/{book_data["title"]}/voices/{email}_{scene["id"]}.mp3', 'wb') as file:
                             await file.write(content)
 
                     d = {'text': scene['text'], "speed": speed, "email": clean_text(email)}
-                    async with session.post(TTS_ENDPOINT, data=d, files=files) as res:
+                    data = FormData()
+                    data.add_field('text': scene['text'])
+                    data.add_field("speed": speed)
+                    data.add_field("email": clean_text(email))
+                    data.add_field('wav', open(file, 'rb'), filename='file.wav', content_type='audio/wav')
+
+                    async with session.post(TTS_ENDPOINT, data=data) as res:
                         content = await res.read()
                         async with aiofiles.open(f'books/{book_data["title"]}/voices/{email}_{scene["id"]}_slow.mp3', 'wb') as file:
                             await file.write(content)
