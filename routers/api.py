@@ -16,13 +16,8 @@ from utils.convert import *
 from pydub import AudioSegment
 
 import time
-import asyncio
-import aiohttp
-import aiofiles
-from aiohttp import FormData
-
-
-queue = asyncio.Queue()
+import threading
+from queue import Queue
 
 standard_wav = "parent/a1.wav"
 api = APIRouter(prefix='/api')
@@ -48,51 +43,44 @@ def conv_to_mp3(wav, mp3):
     if os.path.exists(wav_output):
         os.remove(wav_output)
 
-async def tts_save(email, book_data, file):
-    async with aiohttp.ClientSession() as session:
-        async with aiofiles.open(file, 'rb') as f:
-            raw = await f.read()
-        speed = 0.8
-        start_time = time.time()
-        for scene in book_data['script']:
-            if scene['role'] == '나레이션':
-                d = {'text': scene['text'], "speed": 1.0, "email": clean_text(email)}
-                data = FormData()
-                data.add_field('text', scene['text'])
-                data.add_field("speed", str(1.0))
-                data.add_field("email", clean_text(email))
-                data.add_field('wav', raw, content_type='audio/wav')
+def tts_save(email, book_data, file):
+    with open(file, 'rb') as f:
+        raw = f.read()
+    speed = 0.8
+    start_time = time.time()
+    for scene in book_data['script']:
+        files = {'wav': raw}
+        if scene['role']=='나레이션':
+            d = {'text': scene['text'], "speed": 1.0, "email":clean_text(email)}
+            if not os.path.exists(f"books/{book_data['title']}/voices/{email}_{scene['id']}.mp3"):
+                res = requests.post(TTS_ENDPOINT, files=files, data=d)
+                with open(f'books/{book_data["title"]}/voices/{email}_{scene["id"]}.mp3', 'wb') as file:
+                    file.write(res.content)
+                #tts(d['text'], d['speed'], file, f"books/{book_data['title']}/voices/{email}_{scene['id']}.wav")
+                #conv_to_mp3(f"books/{book_data['title']}/voices/{email}_{scene['id']}.wav", f"books/{book_data['title']}/voices/{email}_{scene['id']}.mp3")
 
-                if not os.path.exists(f"books/{book_data['title']}/voices/{email}_{scene['id']}.mp3"):
-                    async with session.post(TTS_ENDPOINT, data=data) as res:
-                        content = await res.read()
-                        async with aiofiles.open(f'books/{book_data["title"]}/voices/{email}_{scene["id"]}.mp3', 'wb') as file:
-                            await file.write(content)
+                d = {'text': scene['text'], "speed": speed, "email":clean_text(email)}
+                res = requests.post(TTS_ENDPOINT, files=files, data=d)
+                with open(f'books/{book_data["title"]}/voices/{email}_{scene["id"]}_slow.mp3', 'wb') as file:
+                    file.write(res.content)
+                #tts(d['text'], d['speed'], file, f"books/{book_data['title']}/voices/{email}_{scene['id']}_slow.wav")
+                #conv_to_mp3(f"books/{book_data['title']}/voices/{email}_{scene['id']}_slow.wav", f"books/{book_data['title']}/voices/{email}_{scene['id']}_slow.mp3")
+            print(f"{scene['id']} 완료")
+    end_time = time.time()
 
-                    d = {'text': scene['text'], "speed": speed, "email": clean_text(email)}
-                    data = FormData()
-                    data.add_field('text', scene['text'])
-                    data.add_field("speed", str(speed))
-                    data.add_field("email", clean_text(email))
-                    data.add_field('wav', raw, content_type='audio/wav')
+    print(f"{email}, {book_data['title']} 나레이션 생성 완료 ({end_time - start_time})")
 
-                    async with session.post(TTS_ENDPOINT, data=data) as res:
-                        content = await res.read()
-                        async with aiofiles.open(f'books/{book_data["title"]}/voices/{email}_{scene["id"]}_slow.mp3', 'wb') as file:
-                            await file.write(content)
+task_queue = Queue()
 
-                print(f"{scene['id']} 완료")
-        end_time = time.time()
-        print(f"{email}, {book_data['title']} 나레이션 생성 완료 ({end_time - start_time})")
-
-
-async def worker():
+def process_queue():
     while True:
-        email, book_data, file = await queue.get()
+        email, book_data, file = task_queue.get()
         try:
-            await tts_save(email, book_data, file)
+            tts_save(email, book_data, file)
         finally:
-            queue.task_done()
+            task_queue.task_done()
+
+threading.Thread(target=process_queue, daemon=True).start()
 
 @api.post('/tts')
 async def TTS(data : TTS_payload):
@@ -126,7 +114,7 @@ async def TTS(data : TTS_payload):
         
 
 @api.post('/tts/prepare')
-async def prepare(data: TTS_parent_payload, background_tasks: BackgroundTasks):
+async def prepare(data : TTS_parent_payload, background_tasks: BackgroundTasks):
     json_data = get_json()
 
     if not data.email in json_data:
@@ -138,14 +126,14 @@ async def prepare(data: TTS_parent_payload, background_tasks: BackgroundTasks):
         file = f"parent/{clean_text(data.email)}.wav"
     book_data = book_json(data.book)
 
-    if json_data[data.email]['info']['history'] is None:
+    if json_data[data.email]['info']['history'] == None:
         json_data[data.email]['info']['history'] = []
-    if data.book not in json_data[data.email]['info']['history']:
-        await queue.put((data.email, book_data, file))
+    if not book_data in json_data[data.email]['info']['history']:
+        task_queue.put((data.email, book_data, file))
         json_data[data.email]['info']['history'].append(data.book)
-
+        
     data = {
-        "status": "success"
+        "status":"success"
     }
     return JSONResponse(data)
 
@@ -190,5 +178,3 @@ async def rvc_prepare(file : UploadFile, email, book, role):
     
     return JSONResponse({"data":encode_audio('rvc_temp.wav')})
 
-for _ in range(5):
-    asyncio.create_task(worker())
