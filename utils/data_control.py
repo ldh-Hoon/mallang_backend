@@ -6,7 +6,7 @@ import soundfile as sf
 import io, re
 
 def clean_text(text):
-    allowed_characters = re.sub(r'[^a-zA-Z0-9\s_-]', '', text)
+    allowed_characters = re.sub(r'[^a-zA-Z0-9\s_-]', '_', text)
     return allowed_characters.split('@')[0]
 
 
