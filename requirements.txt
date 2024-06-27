@@ -5,3 +5,4 @@ pydub
 torch
 torchudio
 tts
+aiofiles
