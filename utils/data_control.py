@@ -3,10 +3,12 @@ import json
 import base64
 import librosa
 import soundfile as sf
-import io
+import io, re
 
 def clean_text(text):
-    return text.split('@')[0]
+    allowed_characters = re.sub(r'[^a-zA-Z0-9\s_-]', '', text)
+    return allowed_characters.split('@')[0]
+
 
 def encode_audio(file):
     data = open(file, 'rb').read()
