@@ -2,7 +2,7 @@ from typing import Optional
 from fastapi import FastAPI
 from pydantic import BaseModel
 from fastapi.responses import JSONResponse
-from routers.api import api
+from routers.api import *
 from routers.account import account
 from routers.data import data_api
 from fastapi.middleware.cors import CORSMiddleware
@@ -33,7 +33,6 @@ async def home():
 async def home(user):
     
     return f"Hello! {user}"
-
 
 if __name__ == "__main__":
     import uvicorn

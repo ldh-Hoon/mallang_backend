@@ -176,5 +176,5 @@ async def rvc_prepare(file : UploadFile, email, book, role):
     
     return JSONResponse({"data":encode_audio('rvc_temp.wav')})
 
-loop = asyncio.get_event_loop()
-loop.create_task(worker())
+for _ in range(5):
+    asyncio.create_task(worker())
