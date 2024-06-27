@@ -6,3 +6,4 @@ torch
 torchudio
 tts
 aiofiles
+uvloop
