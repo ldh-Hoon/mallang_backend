@@ -58,10 +58,10 @@ async def tts_save(email, book_data, file):
             if scene['role'] == '나레이션':
                 d = {'text': scene['text'], "speed": 1.0, "email": clean_text(email)}
                 data = FormData()
-                data.add_field('text': scene['text'])
-                data.add_field("speed": 1.0)
-                data.add_field("email": clean_text(email))
-                data.add_field('wav', open(file, 'rb'), filename='file.wav', content_type='audio/wav')
+                data.add_field('text', scene['text'])
+                data.add_field("speed", 1.0)
+                data.add_field("email", clean_text(email))
+                data.add_field('wav', raw, content_type='audio/wav')
 
                 if not os.path.exists(f"books/{book_data['title']}/voices/{email}_{scene['id']}.mp3"):
                     async with session.post(TTS_ENDPOINT, data=data) as res:
@@ -71,10 +71,10 @@ async def tts_save(email, book_data, file):
 
                     d = {'text': scene['text'], "speed": speed, "email": clean_text(email)}
                     data = FormData()
-                    data.add_field('text': scene['text'])
-                    data.add_field("speed": speed)
-                    data.add_field("email": clean_text(email))
-                    data.add_field('wav', open(file, 'rb'), filename='file.wav', content_type='audio/wav')
+                    data.add_field('text', scene['text'])
+                    data.add_field("speed", speed)
+                    data.add_field("email", clean_text(email))
+                    data.add_field('wav', raw, content_type='audio/wav')
 
                     async with session.post(TTS_ENDPOINT, data=data) as res:
                         content = await res.read()
