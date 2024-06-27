@@ -51,18 +51,19 @@ def tts_save(email, book_data, file):
         files = {'wav': raw}
         if scene['role']=='나레이션':
             d = {'text': scene['text'], "speed": 1.0, "email":clean_text(email)}
-            res = requests.post(TTS_ENDPOINT, files=files, data=d)
-            with open(f'books/{book_data["title"]}/voices/{email}_{scene["id"]}.mp3', 'wb') as file:
-                file.write(res.content)
-            #tts(d['text'], d['speed'], file, f"books/{book_data['title']}/voices/{email}_{scene['id']}.wav")
-            #conv_to_mp3(f"books/{book_data['title']}/voices/{email}_{scene['id']}.wav", f"books/{book_data['title']}/voices/{email}_{scene['id']}.mp3")
+            if not os.path.exists(f"books/{book_data['title']}/voices/{email}_{scene['id']}.mp3"):
+                res = requests.post(TTS_ENDPOINT, files=files, data=d)
+                with open(f'books/{book_data["title"]}/voices/{email}_{scene["id"]}.mp3', 'wb') as file:
+                    file.write(res.content)
+                #tts(d['text'], d['speed'], file, f"books/{book_data['title']}/voices/{email}_{scene['id']}.wav")
+                #conv_to_mp3(f"books/{book_data['title']}/voices/{email}_{scene['id']}.wav", f"books/{book_data['title']}/voices/{email}_{scene['id']}.mp3")
 
-            d = {'text': scene['text'], "speed": speed, "email":clean_text(email)}
-            res = requests.post(TTS_ENDPOINT, files=files, data=d)
-            with open(f'books/{book_data["title"]}/voices/{email}_{scene["id"]}_slow.mp3', 'wb') as file:
-                file.write(res.content)
-            #tts(d['text'], d['speed'], file, f"books/{book_data['title']}/voices/{email}_{scene['id']}_slow.wav")
-            #conv_to_mp3(f"books/{book_data['title']}/voices/{email}_{scene['id']}_slow.wav", f"books/{book_data['title']}/voices/{email}_{scene['id']}_slow.mp3")
+                d = {'text': scene['text'], "speed": speed, "email":clean_text(email)}
+                res = requests.post(TTS_ENDPOINT, files=files, data=d)
+                with open(f'books/{book_data["title"]}/voices/{email}_{scene["id"]}_slow.mp3', 'wb') as file:
+                    file.write(res.content)
+                #tts(d['text'], d['speed'], file, f"books/{book_data['title']}/voices/{email}_{scene['id']}_slow.wav")
+                #conv_to_mp3(f"books/{book_data['title']}/voices/{email}_{scene['id']}_slow.wav", f"books/{book_data['title']}/voices/{email}_{scene['id']}_slow.mp3")
             print(f"{scene['id']} 완료")
     end_time = time.time()
 
