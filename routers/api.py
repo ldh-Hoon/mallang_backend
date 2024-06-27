@@ -57,13 +57,13 @@ async def tts_save(email, book_data, file):
             if scene['role'] == '나레이션':
                 d = {'text': scene['text'], "speed": 1.0, "email": clean_text(email)}
                 if not os.path.exists(f"books/{book_data['title']}/voices/{email}_{scene['id']}.mp3"):
-                    async with session.post(TTS_ENDPOINT, data=d) as res:
+                    async with session.post(TTS_ENDPOINT, data=d, files=files) as res:
                         content = await res.read()
                         async with aiofiles.open(f'books/{book_data["title"]}/voices/{email}_{scene["id"]}.mp3', 'wb') as file:
                             await file.write(content)
 
                     d = {'text': scene['text'], "speed": speed, "email": clean_text(email)}
-                    async with session.post(TTS_ENDPOINT, data=d) as res:
+                    async with session.post(TTS_ENDPOINT, data=d, files=files) as res:
                         content = await res.read()
                         async with aiofiles.open(f'books/{book_data["title"]}/voices/{email}_{scene["id"]}_slow.mp3', 'wb') as file:
                             await file.write(content)
