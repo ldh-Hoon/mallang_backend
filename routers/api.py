@@ -18,6 +18,7 @@ from pydub import AudioSegment
 import time
 import asyncio
 import aiohttp
+import aiofiles
 
 queue = asyncio.Queue()
 
